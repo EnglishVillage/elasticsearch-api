@@ -49,7 +49,7 @@ public class WKZESTest {
 //                //SortBuilders.fieldSort("transxm").order(SortOrder.DESC),
 //                SortBuilders.fieldSort("custid").order(SortOrder.ASC)
 //        };
-        //MyWork.ESUtils.operDelete("discoverdrugs2","discoverdrugs",null);
+        //ESUtils.operDelete("discoverdrugs2","discoverdrugs",null);
 
 
         index = "discoverdrugssalse";
@@ -73,13 +73,22 @@ public class WKZESTest {
 //        System.out.println(codeList.size());
 
 
-        //BoolQueryBuilder query = QueryBuilders.boolQuery().must(QueryBuilders.fuzzyQuery("code","M000075D01"));
-        BoolQueryBuilder query = QueryBuilders.boolQuery().must(QueryBuilders.wildcardQuery("code","*M003808D01*"));
-        SearchResponse searchResponse = ESUtils.operSearch(index, type, query, null, null);
-        System.out.println(searchResponse.getHits().getTotalHits());
+
+
+//        SearchResponse searchResponse = ESUtils.operSearch(index, type, query, null, null);
+//        System.out.println(searchResponse.getHits().getTotalHits());
+
+
+
+
+
 
         System.out.println();
     }
+
+
+
+
 
 
     /**
@@ -213,26 +222,26 @@ public class WKZESTest {
         };
 
 //        //批处理导入数据
-//        MyWork.ESUtils.operBulk(index, type, Arrays.asList(getJsonArr()));
+//        ESUtils.operBulk(index, type, Arrays.asList(getJsonArr()));
 //        //新增修改数据，有1s延迟，刷新会马上查询到
-//        System.out.println("刷新成功：" + MyWork.ESUtils.refresh(index));
-//        SearchResponse response = MyWork.ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
+        System.out.println("刷新成功：" + ESUtils.refresh(index));
+//        SearchResponse response = ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
 //
-//        System.out.println(MyWork.ESUtils.getMapping(index, type));
+//        System.out.println(ESUtils.getMapping(index, type));
 //        //字段查询
 //        //filter= QueryBuilders.termQuery("merchants", "aaa");//no   【string默认有分词】
 //        query = QueryBuilders.termQuery("merchants", "Harvey Nichols");//no
-//        MyWork.ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
+//        ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
 //        query = QueryBuilders.matchQuery("merchants", "Harvey Nichols");//yes
-//        MyWork.ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
+//        ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
 //        query = QueryBuilders.termQuery("merchants", "chols");//no   【string默认有分词】
-//        MyWork.ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
+//        ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
 //        query = QueryBuilders.matchQuery("merchants", "chols");//no     【根据空格分词】
-//        MyWork.ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
+//        ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
 //        query = QueryBuilders.termQuery("atmFrequency", 10);     //yes
-//        MyWork.ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
+//        ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
 //        query = QueryBuilders.matchQuery("atmFrequency", 10);     //yes
-//        MyWork.ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
+//        ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 20);
 
         //范围查询【左右都闭合】
         query = QueryBuilders.rangeQuery("custid").from(10011).to(10015);   //yes
@@ -248,9 +257,9 @@ public class WKZESTest {
 //                QueryBuilders.termQuery("atmFrequency", 10),
 //                QueryBuilders.termQuery("transxm",17)
 //        };
-//        MyWork.ESUtils.operSearchMulti(new String[]{index}, null, querys, filter, 0, 0);
-//        MyWork.ESUtils.operSearchScroll(new String[]{index}, new String[]{type}, query, filter, sort,30000,15);
-//        MyWork.ESUtils.operSearchTerminate(new String[]{index}, new String[]{type}, query, filter,7);//20条数据，<7才有效果
+//        ESUtils.operSearchMulti(new String[]{index}, null, querys, filter, 0, 0);
+//        ESUtils.operSearchScroll(new String[]{index}, new String[]{type}, query, filter, sort,30000,15);
+//        ESUtils.operSearchTerminate(new String[]{index}, new String[]{type}, query, filter,7);//20条数据，<7才有效果
     }
 
     private String[] getJsonArr() {
@@ -363,6 +372,7 @@ public class WKZESTest {
         ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 0);//只显示10条，默认为10条。
 
         //分词后的模糊查询【fuzziness("AUTO")，自动设置编辑距离，不区分大小写】
+        query = QueryBuilders.boolQuery().must(QueryBuilders.fuzzyQuery("code","M000075D01"));
         query = QueryBuilders.multiMatchQuery("comprihensiv guide", "title", "summmary").fuzziness("AUTO");
         ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{type}, query, filter, sorts, 0, 0);//只显示10条，默认为10条。
 
@@ -473,7 +483,7 @@ public class WKZESTest {
 //                //                        )
 //                //                )
 //        };
-//        response = MyWork.ESUtils.operSearchAggWithNoDel(new String[]{"testcreateindex"}, new String[]{"testtype"}, query, filter, aggBuilders);
+//        response = ESUtils.operSearchAggWithNoDel(new String[]{"testcreateindex"}, new String[]{"testtype"}, query, filter, aggBuilders);
 //        for (int i = 0; i < aggNames.length; i++) {
 //            System.out.println(i);
 //            Aggregation aggregation = response.getAggregations().get(aggNames[i]);
@@ -528,7 +538,7 @@ public class WKZESTest {
 //                //AggregationBuilders.count(aggNames[0]).field("atmFrequency")
 //                //AggregationBuilders.cardinality(aggNames[0]).field("atmFrequency")      //基数
 //        };
-//        response = MyWork.ESUtils.operSearchAggWithNoDel(new String[]{index}, new String[]{type}, query, filter, aggBuilders);
+//        response = ESUtils.operSearchAggWithNoDel(new String[]{index}, new String[]{type}, query, filter, aggBuilders);
 //        for (int i = 0; i < aggNames.length; i++) {
 //            Aggregation aggregation = response.getAggregations().get(aggNames[i]);
 //            if (i == 0) {
@@ -558,7 +568,7 @@ public class WKZESTest {
 //                ////获取边界【经纬度】
 //                //AggregationBuilders.geoBounds(aggNames[0]).field("merchants")
 //        };
-//        response = MyWork.ESUtils.operSearchAggWithNoDel(new String[]{index}, new String[]{type}, query, filter, aggBuilders);
+//        response = ESUtils.operSearchAggWithNoDel(new String[]{index}, new String[]{type}, query, filter, aggBuilders);
 //        for (int i = 0; i < aggNames.length; i++) {
 //            Aggregation aggregation = response.getAggregations().get(aggNames[i]);
 //            if (i == 0) {
@@ -605,7 +615,7 @@ public class WKZESTest {
 //                //分组在求和，根据分组字段里'文档个数总数'进行升序
 //                AggregationBuilders.terms(aggNames[3]).field("atmFrequency").order(Terms.Order.count(true))
 //        };
-//        response = MyWork.ESUtils.operSearchAggWithNoDel(new String[]{index}, new String[]{type}, query, filter, aggBuilders);
+//        response = ESUtils.operSearchAggWithNoDel(new String[]{index}, new String[]{type}, query, filter, aggBuilders);
 //        for (int i = 0; i < aggNames.length; i++) {
 //            System.out.println(i);
 //            Aggregation aggregation = response.getAggregations().get(aggNames[i]);
@@ -836,12 +846,12 @@ public class WKZESTest {
 //        ////通过子文档查询条件 显示相关父文档
 //        ////搜索含有1980年以后出生的employee的branch
 //        //query = QueryBuilders.hasChildQuery("employee", QueryBuilders.rangeQuery("dob").gte("1980-01-01"));//【子文档type,子文档查询条件】
-//        //MyWork.ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{parType}, query, filter, sorts, 0, 0);//只用父type,不可以写子type.
+//        //ESUtils.operSearchWithNoDel(new String[]{index}, new String[]{parType}, query, filter, sorts, 0, 0);//只用父type,不可以写子type.
 //        //将上面转化为siren形式查询,转化失败.父子表查询是根据父表的_id来关联的.siren方式则不允许!!!
 //        filter=QueryBuilders.boolQuery().filter(filterJoin("_id").indices(index).types(chiType).path("parent").query(
 //                QueryBuilders.rangeQuery("dob").gte("1980-01-01")
 //        ));
-//        MyWork.ESUtils.operSearchSiren(new String[]{index}, new String[]{parType}, query, filter, sorts, 0, 0);
+//        ESUtils.operSearchSiren(new String[]{index}, new String[]{parType}, query, filter, sorts, 0, 0);
     }
 
     class Person {

@@ -385,7 +385,10 @@ public class ESUtils {
      * clazz:要转化的Class对象
      */
     public static <T extends Object> T operGetByFieldWithNoDel(String index, String type, String field, Object value, Class<T> clazz) {
-        BoolQueryBuilder query = QueryBuilders.boolQuery().must(QueryBuilders.matchPhraseQuery(field, value));
+        BoolQueryBuilder query = null;
+        if (value != null) {
+            query = QueryBuilders.boolQuery().should(QueryBuilders.fuzzyQuery(field, value));
+        }
         return operGetByQueryWithNoDel(index, type, query, clazz);
     }
 
@@ -401,7 +404,10 @@ public class ESUtils {
      * clazz:要转化的Class对象
      */
     public static <T extends Object> T operGetByField(String index, String type, String field, Object value, Class<T> clazz) {
-        QueryBuilder query = QueryBuilders.matchPhraseQuery(field, value);
+        QueryBuilder query = null;
+        if (value != null) {
+            query = QueryBuilders.fuzzyQuery(field, value);
+        }
         return operGetByQuery(index, type, query, clazz);
     }
 
@@ -1185,11 +1191,11 @@ public class ESUtils {
         if (type != null && type.length() > 0) {
             request = request.setTypes(type);
         }
-        if (query != null) {
+        if (query == null) {
+            request = request.setQuery(QueryBuilders.matchQuery("isDelete", false));
+        } else {
             query = query.must(QueryBuilders.matchQuery("isDelete", false));
             request = request.setQuery(query);
-        } else {
-            request = request.setQuery(QueryBuilders.matchQuery("isDelete", false));
         }
         if (filter != null) {
             request = request.setPostFilter(filter);

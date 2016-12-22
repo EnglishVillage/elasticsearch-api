@@ -7,9 +7,12 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.plugin.deletebyquery.DeleteByQueryPlugin;
 import solutions.siren.join.SirenJoinPlugin;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -19,12 +22,31 @@ import java.util.concurrent.ConcurrentHashMap;
  * 备注：至少需要2个参数:集群名称,es集群中一台节点的ip端口号
  */
 public class ESClientHelper {
-    //集群名称
-    public static final String clusterName = "testes";
-    //存储es的ip,host
-    private HashMap<String, Integer> ips = new HashMap<String, Integer>() {{
-        put("192.168.2.150", 9300);
-    }};
+
+    //集群名称(testes)
+    private static String clusterName = null;
+    //存储es的ip,host(192.168.2.150:9300)
+    private static HashMap<String, Integer> ips = null;
+
+    /**
+     * 作者: 王坤造
+     * 日期: 2016/12/21 18:51
+     * 名称：从properties获取es集群配置
+     * 备注：
+     */
+    static {
+        Properties prop = new Properties();
+        try (InputStream inputStream = ClassLoader.getSystemResourceAsStream("es.properties");) {
+            prop.load(inputStream);
+            clusterName = prop.getProperty("clusterName");
+            ips = new HashMap<String, Integer>() {{
+                put(prop.getProperty("host"), Integer.parseInt(prop.getProperty("nodeport")));
+            }};
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private ConcurrentHashMap<String, Client> clientMap = new ConcurrentHashMap<String, Client>();
 
     private ESClientHelper() {
@@ -62,11 +84,10 @@ public class ESClientHelper {
 
     private InetSocketTransportAddress[] getAllAddress(HashMap<String, Integer> ips) {
         InetSocketTransportAddress[] addressList = new InetSocketTransportAddress[ips.size()];
+        int i = 0;
         try {
-            int i = 0;
             for (String ip : ips.keySet()) {
-                addressList[i] = new InetSocketTransportAddress(InetAddress.getByName(ip), ips.get(ip));
-                i++;
+                addressList[i++] = new InetSocketTransportAddress(InetAddress.getByName(ip), ips.get(ip));
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();
